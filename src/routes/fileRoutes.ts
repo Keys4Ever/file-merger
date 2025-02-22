@@ -1,13 +1,13 @@
-import express from 'express';
-import multer from 'multer';
+import { Router } from 'express';
 import { FileController } from '../controllers/FileController';
+import multer from 'multer';
 
-const router = express.Router();
-const upload = multer(); // Sin configuración de almacenamiento
+const router = Router();
 const fileController = new FileController();
+const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/upload', upload.array('files'), (req, res) => fileController.uploadFiles(req, res));
-router.delete('/remove/:index', (req, res) => fileController.removeFile(req, res));
-router.get('/merge', (req, res) => fileController.mergeFiles(req, res));
+router.post('/upload', upload.array('files'), fileController.uploadFiles);
+router.delete('/remove/:index', fileController.removeFile);
+router.get('/merge', fileController.mergeFiles);
 
 export default router;

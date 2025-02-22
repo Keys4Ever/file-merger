@@ -8,8 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fileInput.addEventListener('change', async (event) => {
         const formData = new FormData();
+        
+        // Iterar sobre los archivos seleccionados
         for (const file of event.target.files) {
-            formData.append('files', file); // El nombre 'files' debe coincidir con el backend
+            const fileInfo = {
+                file: file,
+                path: file.webkitRelativePath || 'src'
+            };
+            
+            formData.append('files', file);
+            formData.append('paths', fileInfo.path);
         }
 
         try {
@@ -23,12 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            files = data.files; // Actualizar la lista de archivos
+            files = data.files;
             renderFileList();
         } catch (error) {
             console.error('Error uploading files:', error);
         }
     });
+
 
     fileList.addEventListener('click', async (event) => {
         if (event.target.classList.contains('remove-btn')) {
@@ -75,12 +84,31 @@ document.addEventListener('DOMContentLoaded', () => {
         fileList.innerHTML = '';
         files.forEach((file, index) => {
             const li = document.createElement('li');
-            li.textContent = file.name;
+            
+            const fileInfo = document.createElement('div');
+            fileInfo.style.flex = '1';
+            
+            const fileName = document.createElement('div');
+            fileName.textContent = file.name;
+            fileName.style.fontWeight = 'bold';
+            fileInfo.appendChild(fileName);
+            
+            if (file.path) {
+                const filePath = document.createElement('div');
+                filePath.textContent = file.path;
+                filePath.style.fontSize = '0.8em';
+                filePath.style.color = '#94a3b8';
+                fileInfo.appendChild(filePath);
+            }
+            
+            li.appendChild(fileInfo);
+            
             const removeBtn = document.createElement('button');
             removeBtn.textContent = 'Remove';
             removeBtn.classList.add('remove-btn');
             removeBtn.dataset.index = index;
             li.appendChild(removeBtn);
+            
             fileList.appendChild(li);
         });
     }
